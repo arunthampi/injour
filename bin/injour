@@ -18,7 +18,9 @@ begin
   when "ls"
     Injour.list(*ARGV)
   when "show"
-    Injour.get(*ARGV)  
+    Injour.get(*ARGV)
+  else
+    Injour.usage
   end
 rescue => e
   puts "ERROR: running '#{cmd}': #{e.message} (#{e.class})\n"
