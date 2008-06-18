@@ -2,10 +2,15 @@
 
 An evolution of the In/Out app which 37Signals uses. A distributed In/Out, if you will.
 
-== Installation
+== Installation from GitHub Gems
 
   sudo gem install dnssd
   sudo gem install arunthampi-injour --source=http://gems.github.com
+  
+== Installation from Source (More reliable)
+  git clone git://github.com/arunthampi/injour.git
+  cd injour
+  rake install
 
 == Usage
 
