@@ -21,6 +21,6 @@ begin
     Injour.get(*ARGV)  
   end
 rescue => e
-  puts "ERROR: running '#{cmd}': #{e.message} (#{e.class})"
-#  Injour.usage
+  puts "ERROR: running '#{cmd}': #{e.message} (#{e.class})\n"
+  Injour.usage
 end
