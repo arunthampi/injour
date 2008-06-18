@@ -13,6 +13,12 @@ An evolution of the In/Out app which 37Signals uses. A distributed In/Out, if yo
   cd injour
   rake install
 
+== Useful bash aliases the author recommends
+  # To be put in your ~/.bash_profile
+  alias ise='injour serve &'
+  alias ist='injour st'
+  alias ils='injour ls'
+
 == Usage
 
   alice$ injour serve                       # Starts up publishing your statuses
