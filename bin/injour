@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require File.dirname(__FILE__) + '/../lib/injour'
+
+begin
+  cmd = ARGV.shift
+
+  case cmd
+  when "status"
+    Injour.set_status(ARGV.join(' '))
+  when "st"
+    Injour.set_status(ARGV.join(' '))  
+  when "serve"
+    Injour.serve(*ARGV)
+  when "list"
+    Injour.list(*ARGV)
+  when "ls"
+    Injour.list(*ARGV)
+  when "show"
+    Injour.get(*ARGV)  
+  end
+rescue => e
+  puts "ERROR: running '#{cmd}': #{e.message} (#{e.class})"
+#  Injour.usage
+end
