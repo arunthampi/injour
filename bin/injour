@@ -7,17 +7,13 @@ begin
   cmd = ARGV.shift
 
   case cmd
-  when "status"
+  when 'status', 'st'
     Injour.set_status(ARGV.join(' '))
-  when "st"
-    Injour.set_status(ARGV.join(' '))  
-  when "serve"
+  when 'serve'
     Injour.serve(*ARGV)
-  when "list"
+  when 'list', 'ls'
     Injour.list(*ARGV)
-  when "ls"
-    Injour.list(*ARGV)
-  when "show"
+  when 'show'
     Injour.get(*ARGV)
   else
     Injour.usage

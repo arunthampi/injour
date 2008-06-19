@@ -78,6 +78,11 @@ show user
 
   def self.set_status(message)
     File.open(INJOUR_STATUS, 'a') { |file| file.puts("[#{Time.now.strftime("%d-%b-%Y %I:%M %p")}] #{message}") }
+    if message !~ /\S/
+      puts 'Your status has been cleared.'
+    else
+      puts "Your status has been set to '#{message}'."
+    end
   end
 
   def self.find(name, first=true)
