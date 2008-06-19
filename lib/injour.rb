@@ -57,10 +57,8 @@ show user
   end
 
   def self.list(name = nil)
-    return show(name) if name
+    return get(name) if name
     hosts = []
-
-    waiting = Thread.current
 
     service = DNSSD.browse(SERVICE) do |reply|
       DNSSD.resolve(reply.name, reply.type, reply.domain) do |rr|
