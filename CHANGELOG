@@ -1,0 +1,23 @@
+2008-06-20
+----------
+
+1. Some Refactoring of code [courtesy Chu Yeow, thanks!]
+2. `injour ls` now shows the latest status of each user on Injour [Idea courtesy Chu Yeow, thanks!]
+
+Example:
+alice$ ./bin/injour ls
+bob (bob-imac.:43215) -> [20-Jun-2008 03:48 PM] Trying out the latest version of injour
+
+3. `injour show bob` now accepts parameters to control the number of statuses that you want to see (by default shows 5)
+
+Example:
+alice$ ./bin/injour show bob 10
+# Will display the last 10 statuses
+
+3. Injour is now available on the browser and accepts parameters to alter the number of statuses on display.
+
+Example:
+
+http://bobs-imac.local:43215/?number=10
+
+

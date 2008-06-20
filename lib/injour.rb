@@ -5,6 +5,8 @@ require "dnssd"
 require "set"
 require "socket"
 require "webrick"
+require 'net/http'
+require 'uri'
 
 require "injour/version"
 
@@ -37,7 +39,11 @@ show user
     HELP
   end
 
-  def self.get(name)
+  def self.retrieve_status_using_http(host, port, limit)
+    Net::HTTP.get_response(URI.parse("http://#{host}:#{port}/?number=#{limit}")).body
+  end  
+
+  def self.get(name, limit = 10)
     hosts = find(name)
 
     if hosts.empty?
@@ -50,8 +56,7 @@ show user
     else
       # Set is weird. There is no #[] or #at
       hosts.each do |host|
-        sock = TCPSocket.open host.host, host.port
-        puts sock.read
+        puts retrieve_status_using_http(host.host, host.port, limit)
       end
     end
   end
@@ -64,7 +69,7 @@ show user
       DNSSD.resolve(reply.name, reply.type, reply.domain) do |rr|
         host = Server.new(reply.name, rr.target, rr.port)
         unless hosts.include? host
-          puts "#{host.name} (#{host.host}:#{host.port})"
+          puts "#{host.name} (#{host.host}:#{host.port}) -> #{retrieve_status_using_http(host.host, host.port, 1)}"
           hosts << host
         end
       end
@@ -99,12 +104,17 @@ show user
 
     sleep 5
     service.stop
-
     hosts
   end
 
-  def self.get_status(limit = 3)
+  def self.get_status(limit = 5)
     File.read(INJOUR_STATUS).split("\n").reverse.slice(0, limit).join("\n")
+  end
+
+  def self.get_limit(query_string)
+    (query_string.match(/number=(\d+)/)[1]).to_i || 5
+  rescue
+    5
   end
 
   def self.serve(name="", port=PORT)
@@ -117,20 +127,27 @@ show user
       puts "#{name}'s In/Out Records..."
     end
     
-    log = WEBrick::Log.new(true) # true fools it
-    def log.log(*anything); end # send it to the abyss
-    
-    # Open webrick babeh
-    server = WEBrick::GenericServer.new(:Port => port.to_i, :Logger => log)
-    # Get the latest status
+    # Don't log anything, everything goes in an abyss
+    log = WEBrick::Log.new(true)
+    def log.log(*anything); end
+    server = WEBrick::HTTPServer.new(:Port => port.to_i, :Logger => log)
+
+    # Open up a servlet, so that status can be viewed in a browser
+    server.mount_proc("/") do |req, res|
+      @logger = log
+      limit = get_limit(req.query_string)
+      res.body = get_status(limit)
+      res['Content-Type'] = "text/plain"
+    end
+    # Ctrl+C must quit it
     %w(INT TERM).each do |signal|
       trap signal do
         server.shutdown
         exit!
       end
     end
-    # Get the latest status
-    server.start { |socket| socket.print(get_status) }
+    # Start the server
+    server.start
   end
 
 end
