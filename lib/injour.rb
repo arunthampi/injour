@@ -13,10 +13,12 @@ require "injour/version"
 Thread.abort_on_exception = true
 
 module Injour
-  Server  = Struct.new(:name, :host, :port)
+  InjourServer  = Struct.new(:name, :host, :port)
   PORT    = 43215
   SERVICE = "_injour._tcp"
   INJOUR_STATUS = File.join(ENV['HOME'], '.injour')
+
+  class Done < RuntimeError; end
 
   def self.usage
     puts <<-HELP
@@ -47,39 +49,46 @@ help
   end  
 
   def self.get(name, limit = 10)
-    hosts = find(name)
+    host = find(name)
 
-    if hosts.empty?
+    if host.nil?
       STDERR.puts "ERROR: Unable to find #{name}"
-    elsif hosts.size > 1
-      STDERR.puts "ERROR: Multiple possibles found:"
-      hosts.each do |host|
-        STDERR.puts "  #{host.name} (#{host.host}:#{host.port})"
-      end
     else
-      # Set is weird. There is no #[] or #at
-      hosts.each do |host|
-        puts retrieve_status_using_http(host.host, host.port, limit)
-      end
+      puts retrieve_status_using_http(host.host, host.port, limit)
     end
   end
 
   def self.list(name = nil)
-    return get(name) if name
-    hosts = []
+    service_list.each do |service|
+      puts "=== #{service.name} on #{service.host}:#{service.port} ==="
+      puts "* #{retrieve_status_using_http(service.host, service.port, 1)}"
+    end
+  end
 
-    service = DNSSD.browse(SERVICE) do |reply|
-      DNSSD.resolve(reply.name, reply.type, reply.domain) do |rr|
-        host = Server.new(reply.name, rr.target, rr.port)
-        unless hosts.include? host
-          puts "#{host.name} (#{host.host}:#{host.port}) -> #{retrieve_status_using_http(host.host, host.port, 1)}"
-          hosts << host
+  def self.discover(timeout=5)
+    waiting_thread = Thread.current
+
+    dns = DNSSD.browse SERVICE do |reply|
+      DNSSD.resolve reply.name, reply.type, reply.domain do |resolve_reply|
+        service = InjourServer.new(reply.name, resolve_reply.target, resolve_reply.port)
+        begin
+          yield service
+        rescue Done
+          waiting_thread.run
         end
       end
     end
 
-    sleep 5
-    service.stop
+    puts "Gathering for up to #{timeout} seconds..."
+    sleep timeout
+    dns.stop
+  end
+
+  def self.service_list
+    list = Set.new
+    discover { |obj| list << obj }
+    
+    return list
   end
 
   def self.set_status(message)
@@ -91,23 +100,17 @@ help
     end
   end
 
-  def self.find(name, first=true)
-    hosts = Set.new
+  def self.find(name)
+    found = nil
 
-    waiting = Thread.current
-
-    service = DNSSD.browse(SERVICE) do |reply|
-      if name === reply.name
-        DNSSD.resolve(reply.name, reply.type, reply.domain) do |rr|
-          hosts << Server.new(reply.name, rr.target, rr.port)
-          waiting.run if first
-        end
+    discover do |obj|
+      if obj.name == name
+        found = obj
+        raise Done
       end
     end
 
-    sleep 5
-    service.stop
-    hosts
+    return found
   end
 
   def self.get_status(limit = 5)
