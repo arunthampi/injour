@@ -132,12 +132,12 @@ help
     tr['description'] = "#{name}'s In/Out"
     
     DNSSD.register(name, SERVICE, "local", port.to_i, tr.encode) do |reply|
-      puts "#{name}'s In/Out Records..."
+      puts "\nStarting #{name}'s Injour..."
     end
     
     # Don't log anything, everything goes in an abyss
-    log = WEBrick::Log.new('/dev/null', WEBrick::Log::DEBUG)
-    server = WEBrick::HTTPServer.new(:Port => port.to_i, :Logger => log, :AccessLog => log)
+    no_log = WEBrick::Log.new('/dev/null', WEBrick::Log::DEBUG)
+    server = WEBrick::HTTPServer.new(:Port => port.to_i, :Logger => no_log, :AccessLog => no_log)
 
     # Open up a servlet, so that status can be viewed in a browser
     server.mount_proc("/") do |req, res|
