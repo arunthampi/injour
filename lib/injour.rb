@@ -112,6 +112,8 @@ help
 
   def self.get_status(limit = 5)
     File.read(INJOUR_STATUS).split("\n").reverse.slice(0, limit).join("\n")
+  rescue # If file is not present, show an empty string
+    ""  
   end
 
   def self.get_limit(query_string)
@@ -131,13 +133,11 @@ help
     end
     
     # Don't log anything, everything goes in an abyss
-    log = WEBrick::Log.new(true)
-    def log.log(*anything); end
-    server = WEBrick::HTTPServer.new(:Port => port.to_i, :Logger => log)
+    log = WEBrick::Log.new('/dev/null', WEBrick::Log::DEBUG)
+    server = WEBrick::HTTPServer.new(:Port => port.to_i, :Logger => log, :AccessLog => log)
 
     # Open up a servlet, so that status can be viewed in a browser
     server.mount_proc("/") do |req, res|
-      @logger = log
       limit = get_limit(req.query_string)
       res.body = get_status(limit)
       res['Content-Type'] = "text/plain"
