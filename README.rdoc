@@ -2,6 +2,10 @@
 
 An evolution of the In/Out app which 37Signals uses. A distributed In/Out, if you will.
 
+For more on what In/Out is, check out the original post:
+
+http://www.37signals.com/svn/posts/976-a-peek-at-inout-an-internal-app-at-37signals
+
 == Installation from GitHub Gems
 
   sudo gem install dnssd
@@ -24,7 +28,7 @@ An evolution of the In/Out app which 37Signals uses. A distributed In/Out, if yo
   alice$ injour serve                       # Starts up publishing your statuses
   alice$ injour status Testing out injour   # Sets your status as injour ['st' is an alias for 'status']
   bob$ injour list                          # Finds alice ['ls' is an alias for 'list']
-  bob$ injour show alice                    # Shows alice's last 3 updates
+  bob$ injour show alice                    # Shows alice's last 5 updates
   
 Prefix the cmds with "sudo" as necessary.
 

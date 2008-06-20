@@ -33,8 +33,11 @@ status/st [<message>]
 list/ls
   List all people who are publishing statuses on Injour
 
-show user
-  Lists the last three updates from the 'user'
+show user [<number_of_statuses_to_show>]
+  Lists the last five updates from the 'user' by default. If you specify number_of_statuses_to_show, it will limit to that number.
+
+help
+  Displays this message.
 
     HELP
   end
