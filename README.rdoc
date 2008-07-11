@@ -6,6 +6,10 @@ For more on what In/Out is, check out the original post:
 
 http://www.37signals.com/svn/posts/976-a-peek-at-inout-an-internal-app-at-37signals
 
+== Contributors
+
+Many thanks to Chu Yeow for patches and improvement-recommendations!
+
 == Installation from GitHub Gems
 
   sudo gem install dnssd
